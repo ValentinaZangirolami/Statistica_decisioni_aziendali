@@ -105,7 +105,7 @@ par(mfrow=c(1,1))
 qqnorm(mult_residuals, main="Q-Q Plot of Residuals")
 qqline(mult_residuals, col="red")
 
-shapiro.test(mult_residuals) # reject H0: gaussian errors
+shapiro.test(mult_residuals) # not reject H0: gaussian errors
 
 # e se usiamo un modello addittivo? 
 
