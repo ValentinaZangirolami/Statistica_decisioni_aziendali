@@ -55,33 +55,7 @@ pi                    # Pi greco
 sin(0); cos(pi)       # Trigonometric functions
 log(x=4, base=2)      # Log base 2
 
-# It's your turn! - Solutions
-
-# 1. Calculate perimeter and area of a circle with radius 4
-radius <- 4
-perimeter <- 2 * pi * radius
-area <- pi * radius ** 2
-cat("Perimeter:", perimeter, "Area:", area)
-
-# 2. Install the library dplyr and show the datasets available
-install.packages("dplyr")
-library(dplyr)
-data(package='dplyr')
-
-# 3. Read the help page of factorial and choose
-?factorial
-?choose
-
-# 4. Number of ways to arrange 7 out of 20 books
-choose(20, 7) * factorial(7)
-
-# 5. Round the number n = 3.78957 to two decimal places
-n <- 3.78957
-round(n, 2)
-
-# 6. Visualize all objects saved in R space and then remove them
-ls()
-rm(list=ls())
+# It's your turn! - Guardare file esercizi.R (fare da 1 a 6)
 
 # Vectors
 x <- c(23.4, 6, 7.1, 6.9, 34.7) # Create a vector
@@ -144,32 +118,7 @@ solve(x,x)           # solve(x) %*% x
 cbind(x,y)           # Column binding
 rbind(x,y)           # Row binding
 
-# It's your turn! - Solutions
-
-# 7. Calculate absolute and relative frequencies
-animals <- c("Cat", "Dog", "Bird", "Bird", "Cat", "Cat", "Dog")
-freq <- table(animals)
-rel_freq <- prop.table(freq)
-max_freq <- max(freq)
-max_animal <- names(which(freq == max_freq))
-cat("Maximum frequency:", max_freq, "Animal:", max_animal)
-
-# 8. Define vector z and select elements
-x <- c("Red", "Green", "Yellow")
-y <- c("Tomato", "Grass", "Sun")
-z <- paste(x, y)
-selected <- z[startsWith(z, "R") & endsWith(z, "o")]
-
-# 9. Matrix operations
-A <- matrix(10:24, nrow=5, ncol=3, byrow=FALSE)
-A_subset <- A[1:3, 1:2]
-row_sums <- rowSums(A)
-col_sums <- colSums(A)
-A_transpose <- t(A)
-B <- matrix(1:6, nrow=3, ncol=2)
-AB_product <- A %*% B
-sd_rows <- apply(B, 1, sd)
-sd_cols <- apply(B, 2, sd)
+# It's your turn! - Fare esercizi da 7 a 9
 
 # Lists
 my_list <- list(FALSE, 0L, pi, "ABC")
@@ -177,19 +126,6 @@ x <- list(1, "A", matrix(1:4, 2, 2))
 x[2]        # Extract as list
 x[[2]]      # Extract element
 unlist(x)   # Convert to vector
-
-# Probability functions
-rnorm(n=5, mean=0, sd=1)  # Random normal numbers
-pnorm(0, mean=0, sd=1)    # P(X <= 0) for X ~ N(0,1)
-
-# R Exercises
-# 11. Calculate the 0.7 quantile of X ~ N(5, 5)
-qnorm(0.7, mean=5, sd=sqrt(5))
-
-# 12. Simulate Gamma(1, 2) and show summary
-set.seed(123)
-data <- rgamma(500, shape=1, rate=2)
-summary(data)
 
 # Control structures
 # If/Else
@@ -220,37 +156,11 @@ fahrenheit_to_celsius <- function(temp_F) {
 }
 fahrenheit_to_celsius(55)
 
-# It's your turn! - Solutions
+# It's your turn! - Fare esercizi da 10 a 12
 
-# 13. Function for vector statistics
-vector_stats <- function(vec) {
-  list(
-    mean = mean(vec),
-    variance = var(vec),
-    minimum = min(vec),
-    maximum = max(vec)
-  )
-}
-
-# 14. Function for number sequence
-num_seq <- function(n) {
-  sapply(2:(n+1), function(i) i^2 * (2*i - 1))
-}
-
-# 15. Skewness function
-skewness <- function(data) {
-  x_bar <- mean(data)
-  q2 <- median(data)
-  s <- sd(data)
-  I <- 3 * (x_bar - q2) / s
-  if (abs(I) > 0.1) {
-    return("The data is significantly skewed")
-  } else {
-    return("The data is not significantly skewed")
-  }
-}
 
 # Dataframe
+
 x <- data.frame(
   hair_color = c("Blonde", "Blonde", "Black", "Brown"),
   gender = c("F", "M", "M", "F")
