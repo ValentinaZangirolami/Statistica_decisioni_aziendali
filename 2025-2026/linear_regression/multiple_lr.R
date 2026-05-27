@@ -42,8 +42,15 @@ ggplot(esg_data, aes(x = Industry, y = MarketCap, fill = Industry)) +
        y = "MarketCap") +
   theme_minimal()
 
+esg_data$Industry_dummy <- ifelse(esg_data$Industry=="Technology", 1, 0)
+esg_data$finance_dummy <- ifelse(esg_data$Industry=="Finance", 1, 0)
+
+esg_data$Industry_dummy <- as.factor(esg_data$Industry_dummy)
+esg_data$finance_dummy <- as.factor(esg_data$finance_dummy)
+summary(esg_data)
+
 #multiple linear regression
-mod <- lm(MarketCap~., data=esg_data)
+mod <- lm(MarketCap~ CarbonEmissions + WaterUsage + Revenue + finance_dummy + Industry_dummy, data=esg_data)
 summary(mod)
 
 # WaterUsage, CarbonEmissions, Revenue, IndustryTechnology e IndustryFinance hanno coefficienti significativi
@@ -59,6 +66,8 @@ plot(mod)
 # plot in alto-destra: code pesanti
 # plot in basso-sinistra: omoschedasticità non sembra propriamente rispettata
 # plot in alto-destra: qualche problema con influential points (76, 3034)
+
+esg_data <- esg_data[-c(26,3034),]
 
 #interaction
 
@@ -96,7 +105,7 @@ ggplot(esg_data, aes(x = WaterUsage, y = MarketCap, color = Industry)) +
 # proviamo ad aggiungere GrowthRate:Industry 
 
 #add interaction
-mod_int <- lm(MarketCap ~ . + GrowthRate:Industry, data = esg_data)
+mod_int <- lm(MarketCap ~ CarbonEmissions + WaterUsage + Revenue + finance_dummy + Industry_dummy + GrowthRate:Industry, data = esg_data)
 summary(mod_int)#interazioni non significative
 #leggero incremento di R2
 plot(mod_int)

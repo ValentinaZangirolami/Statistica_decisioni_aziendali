@@ -23,13 +23,14 @@ help.search("mean")  # to search a string on function's documentation
 
 # Logic operators
 5 != 3  # not equal
-(5 > 3) & (2 < 4) # AND
+(5 > 3) & (2 > 4) # AND
 (5 > 3) | (2 > 4) # OR
 
 # Data Types
+
 numeric_var <- 2.5    # Numeric
 integer_var <- 18L    # Integer
-logical_var <- TRUE   # Logical
+logical_var <- TRUE  # Logical
 complex_var <- 2i     # Complex
 character_var <- "Cherry" # Character
 raw_var <- charToRaw("hello") # Raw
@@ -40,7 +41,7 @@ missing <- NA         # missing value
 
 # Variables and Basic Arithmetic
 sum_n <- 2 + 2.5      # Sum of two numbers
-cat("The sum of the two numbers is", sum_n)
+cat("La somma dei due numeri e:", sum_n)
 
 # Division between two numbers with scientific notation
 x <- 1
@@ -49,7 +50,7 @@ print(x/y)
 
 # Math functions
 z <- exp(3)           # Exp function
-y <- log(1)           # Log function
+y <- log(3, base= 1/2)           # Log function
 print(z - y)
 pi                    # Pi greco
 sin(0); cos(pi)       # Trigonometric functions
@@ -59,14 +60,15 @@ log(x=4, base=2)      # Log base 2
 
 # Vectors
 x <- c(23.4, 6, 7.1, 6.9, 34.7) # Create a vector
-length(x)       # Length of the vector
-x[1]           # First element
+length(numero_euro_spesi)       # Length of the vector
+numero_euro_spesi[1]           # First element
 x[c(2,3)]      # Second and third elements
 x[c(1:3)]      # First three elements
 
 # Sequences
 n <- 10
 seq(1, n)              # Sequence from 1 to 10
+vet_100 <-  seq(1, 100)
 seq(1, n, by = 2)      # Sequence with step 2
 seq(1, n, length.out = 5) # Sequence with 5 elements
 rep(n, times=5)        # Repeat n 5 times
@@ -96,11 +98,15 @@ summary(x)             # Summary statistics
 # Vectors of characters
 days_list <- c("Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday", "Sunday")
 factor(c("Monday", "Sunday"), levels = days_list)
+euro_spesi <- c(10, 20)
+days_week <- c("Monday", "Friday")
+days_week <- factor(c("Monday", "Sunday"), levels = days_list)
 
 # Frequency table
 table(c("A", "B", "B"))
 
 # Matrix
+
 matrix(1:10, nrow = 2, ncol = 5)
 matrix(letters[1:10], nrow = 2, ncol = 5, byrow = TRUE)
 
@@ -122,7 +128,7 @@ rbind(x,y)           # Row binding
 
 # Lists
 my_list <- list(FALSE, 0L, pi, "ABC")
-x <- list(1, "A", matrix(1:4, 2, 2))
+x <- list(a= 1, b= "A", c= matrix(1:4, 2, 2))
 x[2]        # Extract as list
 x[[2]]      # Extract element
 unlist(x)   # Convert to vector
@@ -149,6 +155,11 @@ for (i in seq_along(x)) {
     odd_x <- c(odd_x, x[i])
   }
 }
+
+even_x
+odd_x
+
+x
 
 # Functions
 fahrenheit_to_celsius <- function(temp_F) {

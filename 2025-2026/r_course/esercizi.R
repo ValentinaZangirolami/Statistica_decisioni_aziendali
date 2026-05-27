@@ -6,18 +6,43 @@
 
 # 1. Calcolate il perimetro e l'area del cerchio con raggio 4. E stampa il risultato
 
+raggio <- 4
+
+perimetro <- 2 * pi *raggio
+cat("Il valore del perimetro e:", perimetro)
+
+area = pi * raggio**2
+area
+
 # 2. Installare la library dplyr e mostra i datasets disponibili
+
+
 
 # 3. Leggete le pagine help di factorial e choose
 
 # 4. Calcolate il numero di modi per ordinare 7 libri tra 20
 
+choose(20, 7) *factorial(7)
+
 # 5. Arrotondare il numero n = 3.78957 al secondo decimale
+
+round(3.78957, 2)
 
 # 6. Visualizzare tutte le variabili nel global environment e cancellarle
 
+ls()
+rm(list=ls())
+
 # 7. Crea una lista di animali con le seguenti istanze ("Cat", "Dog", "Bird", "Bird", "Cat", "Cat", "Dog").
 #    Calcola le frequenze relative e assolute. Stampa la categoria con la frequenza maggiore.
+
+animals <- c("Cat", "Dog", "Bird", "Bird", "Cat", "Cat", "Dog")
+freq <- table(animals)
+freq_rel <- prop.table(freq)
+max_freq <- max(freq_rel)
+max_animals <- names(which(freq_rel==max_freq))
+
+
 
 # 8. Considerando i vettori x e y, create un nuovo vettore z unendo ogni elemento di x con il corrispettivo valore
 #    di y (es. z[1] <- "Red Tomato"). Usare funzione paste.

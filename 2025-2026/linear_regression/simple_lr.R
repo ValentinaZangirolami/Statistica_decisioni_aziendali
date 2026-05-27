@@ -122,6 +122,9 @@ plot(x,residuals(lm(y2~x)),xlab="X",ylab="residuals")
 plot(x,residuals(lm(y3~x)),xlab="X",ylab="residuals")
 plot(x,residuals(lm(y4~x)),xlab="X",ylab="residuals")
 
+par(mfrow=c(2, 2))
+plot(lm(y4~x))
+
 # Issues with Gaussian assumption
 
 y1 <- x+.05*rt(50,df=2)

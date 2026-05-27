@@ -5,8 +5,11 @@
 # Come si carica un dataset? Prima di tutto vediamo in quale cartella siamo
 getwd()
 
+valentina.zangirolami@unimib.it
+
 # Impostiamo il path giusto
-dir <- "C:/Users/valen/Documents/GitHub/Statistical-Learning/Statistica_decisioni_aziendali/2025-2026/eda"
+
+dir <- "C:/Users/valen/Documents/GitHub/Statistica_decisioni_aziendali/2025-2026/eda"
 setwd(dir)
 
 # ok verifichiamo
@@ -50,6 +53,7 @@ hist(telco$Tenure,
 
 
 ## ----------------------------------------------------------------------------------
+
 table(telco$ChurnLabel)
 
 barplot(table(telco$ChurnLabel),
@@ -77,7 +81,7 @@ prop.table(table(telco$Contract, telco$ChurnLabel), 1)
 
 barplot(table(telco$Contract, telco$ChurnLabel),
         beside = TRUE,
-        col = c("blue", "red"),
+        col = c("blue", "red", "green"),
         legend = TRUE,
         main = "Churn per tipo di contratto")
 

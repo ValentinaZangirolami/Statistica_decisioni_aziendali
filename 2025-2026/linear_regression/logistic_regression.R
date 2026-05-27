@@ -20,7 +20,7 @@ head(Default)
 # tre covariate: Student (se customer è studente o no), Balance (media del bilancio 
 # mensile rimanente su carta di credito) e Income (reddito)
 
-# numero mercati n=10000
+# numero clienti n=10000
 nrow(Default)
 
 # prima analisi dei dati: visualizziamo le caratteristiche dei nostri dati
