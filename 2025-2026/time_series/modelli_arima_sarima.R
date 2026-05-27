@@ -1,136 +1,198 @@
 ################################################################################
 #                               Serie storiche                                 #
 #                                ARIMA/SARIMA                                  #
+#                                                                              #
 ################################################################################
 #                           Valentina Zangirolami                              #
 #                       valentina.zangirolami@unimib.it                        #
 ################################################################################
 
-#caricamento librerie
+
+# -----------------------------------------------------------------------------
+# 0. Setup
+# -----------------------------------------------------------------------------
+
+# Installare i pacchetti se necessario:
+# install.packages(c("forecast", "tseries"))
 
 library(forecast)
 library(tseries)
 
-#caricamento dati
+read_course_csv <- function(file_name, ...) {
+  candidate_paths <- c(file.path("dataset", file_name), file_name)
+  existing_path <- candidate_paths[file.exists(candidate_paths)][1]
+  if (is.na(existing_path)) {
+    stop(
+      paste0(
+        "File non trovato: ", file_name,
+        ". Mettere il CSV nella working directory oppure nella cartella dataset/."
+      )
+    )
+  }
+  read.csv(existing_path, ...)
+}
 
-google_returns <- read.csv("dataset/google_stock_returns.csv", row.names = 1)
+# -----------------------------------------------------------------------------
+# 1. Google returns: ARMA per serie circa stazionarie
+# -----------------------------------------------------------------------------
 
-#visualizziamo dati
-View(google_returns)
+google_returns <- read_course_csv("google_stock_returns.csv", row.names = 1)
+
+# View(google_returns)
+
+head(google_returns)
 summary(google_returns)
 
-#trasformiamo in formato data
-google_returns$Date <- as.Date(google_returns$Date, origin= "2020-01-03")
+# Se la colonna Date è numerica, origin specifica la data di partenza.
+# Se è già in formato carattere ISO, as.Date() funziona direttamente.
+if (is.numeric(google_returns$Date)) {
+  google_returns$Date <- as.Date(google_returns$Date, origin = "2020-01-03")
+} else {
+  google_returns$Date <- as.Date(google_returns$Date)
+}
 
-ts.plot(google_returns$Returns, xlab="time", ylab="Returns", main="Google stock returns")
+ts.plot(google_returns$Returns,
+        xlab = "time",
+        ylab = "Returns",
+        main = "Google stock returns")
+abline(h = 0, lty = 2)
 
-#stazionaria --> proviamo ad usare modelli ARMA
 
-#visualizzazione autocorrelazione e autocorrelazione parziale
+# I rendimenti finanziari spesso oscillano intorno a zero, senza trend evidente.
+# Questo rende plausibile, come primo tentativo, l'uso di modelli ARMA.
 
-par(mfrow = c(1, 2))  # Set up 1 row, 2 columns for plots
+# Test ADF: H0 = presenza di radice unitaria, cioè non stazionarietà.
+adf.test(na.omit(google_returns$Returns))
 
-# ACF plot (Autocorrelation Function)
-acf(google_returns$Returns, 
-    lag.max = 20,       # Show up to 20 lags
+# ACF e PACF aiutano a formulare ipotesi su p e q.
+par(mfrow = c(1, 2))
+acf(google_returns$Returns,
+    lag.max = 20,
     main = "ACF of Google Returns",
     ylab = "Autocorrelation",
-    ci = 0.95)          # 95% confidence intervals
-
-# PACF plot (Partial Autocorrelation Function)
-pacf(google_returns$Returns, 
+    ci = 0.95)
+pacf(google_returns$Returns,
      lag.max = 20,
      main = "PACF of Google Returns",
      ylab = "Partial Autocorrelation")
+par(mfrow = c(1, 1))
 
-# possiamo provare inizialmente con un ARMA(1,1)
+# - AR(p): la PACF tende a tagliarsi dopo p lag.
+# - MA(q): la ACF tende a tagliarsi dopo q lag.
+# - ARMA(p,q): entrambe tendono a decadere gradualmente.
 
-# ARMA : modelli per serie storiche stazionarie
+# Primo tentativo: ARMA(1,1).
+arma_11 <- arima(google_returns$Returns, order = c(1, 0, 1))
+print(arma_11)
+checkresiduals(arma_11)
 
-arma_mod <- arima(google_returns$Returns, order = c(1,0,1))
-print(arma_mod)
+# Secondo tentativo: ARMA(1,2).
+arma_12 <- arima(google_returns$Returns, order = c(1, 0, 2))
+print(arma_12)
+checkresiduals(arma_12)
 
-# check se residui sono white noise
+# Confronto AIC: più basso è meglio, a parità di obiettivo e dati.
+AIC(arma_11, arma_12)
 
-checkresiduals(arma_mod)
+# Visualizzazione dei fitted values per il modello scelto.
+# In questo esempio usiamo ARMA(1,2), ma discutere la scelta guardando AIC e residui.
+arma_selected <- arma_12
+arma_fit <- google_returns$Returns - residuals(arma_selected)
 
-# proviamo con ARMA(1,2)
-arma_mod <- arima(google_returns$Returns, order = c(1,0,2))
-print(arma_mod)
-#migliore AIC
-checkresiduals(arma_mod)
-
-# vediamo grafico con fitted values
-
-arma_fit <- google_returns$Returns - residuals(arma_mod) 
-
-par(mfrow=c(1,1))
-ts.plot(google_returns$Returns)
+ts.plot(google_returns$Returns,
+        main = "Google returns e fitted values ARMA",
+        ylab = "Returns")
 points(arma_fit, type = "l", col = 2, lty = 2)
+legend("topright",
+       legend = c("Osservato", "Fitted"),
+       lty = c(1, 2),
+       col = c(1, 2),
+       bty = "n")
 
-#dataset airpassengers
+# Provare ARMA(2,1) e ARMA(2,2). Quale modello ha AIC più basso?
+# I residui sembrano white noise?
+
+# -----------------------------------------------------------------------------
+# 2. AirPassengers: da serie non stazionaria a SARIMA
+# -----------------------------------------------------------------------------
 
 data("AirPassengers")
 air_passenger <- AirPassengers
-summary(air_passenger)
 
+summary(air_passenger)
 start(air_passenger)
 end(air_passenger)
+frequency(air_passenger) # serie mensile: frequency = 12
 
-frequency(air_passenger) #serie mensile
+ts.plot(air_passenger,
+        xlab = "Year",
+        ylab = "Number of Passengers",
+        main = "Monthly totals of international airline passengers, 1949-1960")
+abline(reg = lm(air_passenger ~ time(air_passenger)))
 
-#plot time series
+# Qui vediamo trend crescente e stagionalità crescente nel tempo.
+# Quindi la serie originale non è stazionaria.
 
-ts.plot(air_passenger, xlab="Year", ylab="Number of Passengers", main="Monthly totals of international airline passengers, 1949-1960")
-
-abline(reg=lm(air_passenger~time(air_passenger)))
-
-# trend cresce nel tempo
-# stagionalità cresce nel tempo
-
-# cerchiamo di rendere la serie storica stazionaria
-
-# traformazione log per stabilizzare variabilità
+# 2.1 Trasformazione logaritmica: stabilizza la variabilità.
 log_AP <- log(air_passenger)
-plot(log_AP, main="Log-Transformed AirPassengers")
+plot(log_AP, main = "Log-transformed AirPassengers")
 
-# rimoviamo trend
+# 2.2 Differenza ordinaria: riduce/rimuove il trend.
 diff_log_AP <- diff(log_AP)
-plot(diff_log_AP, main="Log-Transformed AirPassengers w/o trend")
+plot(diff_log_AP, main = "Log AirPassengers dopo differenza ordinaria")
 
-#rimoviamo stagionalità
+# 2.3 Differenza stagionale: riduce/rimuove stagionalità annuale.
+final_AP <- diff(diff_log_AP, lag = 12)
+plot(final_AP, main = "Serie circa stazionaria dopo differenze")
 
-final_AP <- diff(diff_log_AP, lag=12)
-plot(final_AP, main="TS stationary")
+# Test ADF sulla serie trasformata.
+adf.test(na.omit(final_AP))
 
-# verifichiamo con test
-adf.test(na.omit(final_AP)) # rifiuto H0 --> la serie è stazionaria
+# ACF e PACF della serie trasformata.
+par(mfrow = c(1, 2))
+acf(final_AP, main = "ACF: AirPassengers trasformata")
+pacf(final_AP, main = "PACF: AirPassengers trasformata")
+par(mfrow = c(1, 1))
 
-# analizziamo la correlazione
+# - ACF compatibile con una componente MA.
+# - PACF compatibile con una componente AR.
+# La lettura di ACF/PACF non è meccanica: va sempre verificata con diagnostica.
 
-acf(final_AP, main = "ACF") #sembra suggerire un MA(2)
-pacf(final_AP, main = "PACF") #sembra suggerire un AR(1)
+# Modello sulla serie già trasformata: ARMA(1,2).
+arma_AP <- arima(final_AP, order = c(1, 0, 2))
+print(arma_AP)
+checkresiduals(arma_AP)
 
-# ARIMA : modelli per serie storiche non stazionarie
+# Modello SARIMA equivalente sulla serie logaritmica originale.
+# order = c(p,d,q) e seasonal$order = c(P,D,Q).
+sarima_model <- arima(log_AP,
+                      order = c(1, 1, 2),
+                      seasonal = list(
+                        order = c(0, 1, 1),
+                        period = 12))
+print(sarima_model)
+checkresiduals(sarima_model)
 
-arma_mod <- arima(final_AP, order=c(1,0,2))
-print(arma_mod)
-checkresiduals(arma_mod)
-
-# invece di detrendizzare la serie e destagionalizzarla, potevamo applicare
-sarima_model <- arima(log_AP, 
-                      order=c(1,1,2),          # Non-seasonal (p,d,q)
-                      seasonal=list(
-                        order=c(0,1,1),        # Seasonal (P,D,Q)
-                        period=12))   
-print(sarima_model) # AIC peggiore
-checkresiduals(sarima_model) 
-
-# auto sarima
-
-auto_model <- auto.arima(log_AP, 
-                         seasonal=TRUE,
-                         stepwise=FALSE,
-                         approximation=FALSE)
+# auto.arima cerca automaticamente una combinazione ragionevole di ordini.
+auto_model <- auto.arima(log_AP,
+                         seasonal = TRUE,
+                         stepwise = FALSE,
+                         approximation = FALSE)
 summary(auto_model)
 checkresiduals(auto_model)
+
+# Confronto AIC tra modello manuale e modello automatico.
+AIC(sarima_model, auto_model)
+
+# Previsione finale
+ap_forecast <- forecast(auto_model, h = 24)
+plot(ap_forecast,
+     main = "Forecast AirPassengers, modello auto.arima",
+     xlab = "Year",
+     ylab = "log(Passengers)")
+
+
+# MINI-ESERCIZIO FINALE:
+# 1. Cambiare h nella previsione da 24 a 12 o 36.
+# 2. Osservare come cambia l'incertezza delle previsioni.
+# 3. Discutere perché gli intervalli si allargano andando avanti nel tempo.
